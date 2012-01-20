@@ -1,0 +1,7 @@
+use 'runner.m', to generate a dataset, and then run both lms and mse on that dataset.
+
+The output weights are graphed as a line, along with all of the points.
+
+Each function is graphed seperately, and titled.
+
+See runner.m for usage.
