@@ -22,5 +22,3 @@ dtop = ones(N,1);
 dbottom = -1.*ones(N,1);
 d = vertcat(dtop,dbottom);
 
-% plot(X(:,1),X(:,2),'.');
-

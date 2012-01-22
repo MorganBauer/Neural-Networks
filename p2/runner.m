@@ -17,8 +17,6 @@ for sample = 1 : size(train_X,1)
   w = lms(w, lmsX(:,sample), train_d(sample), 10^-3);
 end
 
-w
-
 hold on;
 graph_output(train_X(:,1),train_X(:,2),train_d,w,'lms');
 

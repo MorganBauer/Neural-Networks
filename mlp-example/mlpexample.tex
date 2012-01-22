@@ -1,0 +1,234 @@
+\documentclass{article}
+\usepackage{tikz}
+
+\title{MLP Example \\ \normalsize Version 0.1}
+\date{Last Updated: \today}
+\begin{document}
+\maketitle
+
+
+
+MLP backpropagation example created by Morgan Bauer March 2011 for CAP6615
+
+Verified by hayward cooper, joir-dan gumbs, sean goldberg
+
+Most recent version most likely at http://www.cise.ufl.edu/~mhb/matlab/mlpexample.pdf
+or ask Dr. Wilson.
+
+Soon to be on github.
+
+
+
+\begin{verbatim}
+varphi = @(x) 1.7159 * tanh ((2/3)*x);
+varphiprime = @(x) 1.7159*(2/3)*(1-(tanh((2/3)*x).^2));
+\end{verbatim}
+
+learning rate / eta /\(\eta\)  = 0.01
+
+momentum / alpha / \(\alpha\)= 0 (doesn't matter for first epoch however.)
+
+sample data
+
+Logical Input
+\begin{verbatim}
+x = [ 1  1
+     -1  1
+      1 -1
+     -1 -1];
+\end{verbatim}
+Exclusive Or (XOR) Output
+\begin{verbatim}
+d =  [-1
+       1
+       1
+      -1];
+\end{verbatim}
+
+  Suggested mode of checking: 
+\begin{enumerate}
+\item Check in order as you implement. But, you aren't going to do that. So, instead.
+\item 
+ Check the output weights of the first
+  iteration over a single sample, if those are correct, everything is
+  all right. 
+
+\item Otherwise, start with the forward-evaluation (v)
+  intermediate values (i.e. before the activation function).  
+
+\item Then
+  check the backprop values. (i.e. $\delta$s, then $\Delta$w, then w)
+\end{enumerate}
+
+for comparison turn on printing extra precision.
+In Matlab, this is done with 
+\begin{verbatim}
+format long g;
+\end{verbatim}
+
+\newpage 
+Network Structure
+
+\tikzstyle{place}=[shape=circle,draw,minimum size=10mm]
+\tikzstyle{weight}=[pos=0.25,sloped,above]
+\tikzstyle{bias}=[pos=0.5,right]
+\tikzstyle{actfn}=[midway,sloped,above]
+\noindent
+\begin{tikzpicture} [scale=2]
+  \path
+  node at (0,1) (inputx1)[shape=circle] {$x_1$} 
+  node at (1,1) (h1-1)  [place] {}
+  node at (2,1) (v1out) [place] {$v_1$}
+  node at (2,2) (w1)    [place] {1}
+  node at (3,1) (h1-2)  [place] {}
+  node at (4,1) (v3out) [place] {$v_3$}
+  node at (4,2) (w3)    [place] {1}
+
+  node at (0,0) (inputx2)[shape=circle] {$x_2$}
+  node at (1,0) (h2-1)  [place] {}
+  node at (2,0) (v2out) [place] {$v_2$}
+  node at (2,-1) (w2)    [place] {1}
+  node at (3,0) (h2-2)  [place] {}
+  node at (4,0) (v4out) [place] {$v_4$}
+  node at (4,-1) (w4)    [place] {1}
+
+  node at (5,0) (hf2) [place] {}
+  node at (5,1) (hf1)    [place] {}
+
+  node at (6,1.5) (w5)    [place] {1}
+  node at (6,0.5) (v5)    [place] {$v_5$}
+  node at (7,0.5) (yout)    [] {y};
+  \draw[->] (inputx1) -- (h1-1);
+  \draw[->] (inputx2) -- (h2-1);
+
+  \draw[->] (h1-1) -- (v1out) node[weight]{0.5};
+  \draw[->] (h2-1) -- (v1out) node[weight]{0.4};
+  \draw[->] (w1) -- (v1out) node[bias]{0.55};
+
+  \draw[->] (h1-1) -- (v2out) node[weight]{0.5};
+  \draw[->] (h2-1) -- (v2out) node[weight]{0.4};
+  \draw[->] (w2) -- (v2out) node[bias]{0.45};
+
+  \draw[->] (v1out) -- (h1-2) node[actfn]{$\varphi(\bullet)$};
+  \draw[->] (v2out) -- (h2-2) node[actfn]{$\varphi(\bullet)$};
+
+  \draw[->] (h1-2) -- (v3out) node[weight]{0.3};
+  \draw[->] (h2-2) -- (v3out) node[weight]{0.2};
+  \draw[->] (w3) -- (v3out) node[bias]{0.35};
+
+  \draw[->] (h1-2) -- (v4out) node[weight]{0.3};
+  \draw[->] (h2-2) -- (v4out) node[weight]{0.2};
+  \draw[->] (w4) -- (v4out) node[bias]{0.25};
+
+  \draw[->] (v3out) -- (hf1) node[actfn]{$\varphi(\bullet)$}; 
+  \draw[->] (v4out) -- (hf2) node[actfn]{$\varphi(\bullet)$}; 
+
+  \draw[->] (hf1) -- (v5) node[actfn]{0.1};
+  \draw[->] (hf2) -- (v5) node[actfn]{0.1};
+  \draw[->] (w5) -- (v5) node[bias]{0.15};
+  \draw[->] (v5) -- (yout) node[pos=0.5,sloped,above]{$\varphi(\bullet)$};
+\end{tikzpicture}
+
+
+\newpage
+Matlab Dump Output, with all intermediate values
+
+******* epoch 1  ********
+stochastic/sequential/pattern mode
+Sample 1
+\begin{verbatim}
+current_X =
+     1
+     1
+current_d =
+    -1
+\end{verbatim}
+Sample 1 Forward Evaluation
+\begin{verbatim}
+v12 =
+                      1.45
+                      1.35
+v34 =
+         0.980473686817253
+         0.880473686817253
+v5 =
+         0.339065291500024
+\end{verbatim}
+\noindent
+Sample 1 Backpropagation
+
+\noindent
+remember these are calculated in the reverse order, so check the last value first
+
+\begin{verbatim}
+delta12 =
+       -0.0362501820144165
+       -0.0266444733664071
+delta34 =
+        -0.115196418011413
+        -0.123981549053138
+delta5  =
+           -1.502153191989
+\end{verbatim}
+
+Sample 1 $\Delta$w
+\begin{verbatim}
+dw12 =
+     -0.000362501820144165
+     -0.000266444733664071
+     -0.000362501820144165
+     -0.000266444733664071
+dw34 =
+      -0.00147702767388287
+      -0.00158966903800957
+      -0.00141587400776555
+      -0.00152385165942794
+dw5 =
+       -0.0147982357061951
+       -0.0136022674059141
+\end{verbatim}
+\newpage
+Sample 1 Weight Updates
+\begin{verbatim}
+oldw =
+                       0.5
+                       0.5
+                       0.4
+                       0.4
+neww =
+         0.499637498179856
+         0.499733555266336
+         0.399637498179856
+         0.399733555266336
+
+oldw =
+                       0.3
+                       0.3
+                       0.2
+                       0.2
+neww =
+         0.298522972326117
+          0.29841033096199
+         0.198584125992234
+         0.198476148340572
+
+oldw =
+                       0.1
+                       0.1
+neww =
+        0.0852017642938049
+         0.086397732594086
+\end{verbatim}
+Sample 1 Bias Updates
+\begin{verbatim}
+newbias12 =
+         0.549637498179856
+         0.449733555266336
+newbias34 =
+         0.348848035819886
+         0.248760184509469
+newbias5 =
+          0.13497846808011
+\end{verbatim}
+
+\end{document}
