@@ -1,2 +1,6 @@
 Neural Networks Class Code
 Matlab/Octave Code implementing some interesting neural networks stuff
+
+I think that one of the best pieces is the Multilayer Perceptron (MLP) Example.
+This can show people how the output should look exactly.
+Severl of the other people that were in the class at that time, got the exact same answers, to all decimal places. Thus I think it's a good representation of what MLP output looks like, when implemented properly.
